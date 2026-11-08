@@ -283,64 +283,6 @@ public class HRController {
         }
     }
 
-    @GetMapping("/api/employee/leave-requests")
-    public ResponseEntity<?> getMyLeaveRequests() {
-        try {
-            User user = getLoggedInUser();
-            if (user == null) return ResponseEntity.status(401).body("Unauthorized");
-            Employee employee = employeeRepository.findByUserId(user.getId()).orElse(null);
-            if (employee == null) return ResponseEntity.badRequest().body("No employee profile found");
-
-            List<LeaveRequest> requests = leaveRequestRepository.findByEmployeeId(employee.getId());
-            return ResponseEntity.ok(requests);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
-    @GetMapping("/api/employee/forgot-clock-requests")
-    public ResponseEntity<?> getMyForgotClockRequests() {
-        try {
-            User user = getLoggedInUser();
-            if (user == null) return ResponseEntity.status(401).body("Unauthorized");
-            Employee employee = employeeRepository.findByUserId(user.getId()).orElse(null);
-            if (employee == null) return ResponseEntity.badRequest().body("No employee profile found");
-
-            List<ForgotClockRequest> requests = forgotClockRequestRepository.findByEmployeeId(employee.getId());
-            return ResponseEntity.ok(requests);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
-    @GetMapping("/api/hr/leave-requests")
-    public ResponseEntity<?> getBranchLeaveRequests(@RequestParam(required = false) String branchId) {
-        try {
-            BranchAccessService.ErrorHolder error = new BranchAccessService.ErrorHolder();
-            String activeBranchId = branchAccessService.validateAndGetBranchId(branchId, error);
-            if (error.hasError()) return error.toResponse();
-
-            List<LeaveRequest> requests = leaveRequestRepository.findByEmployeeBranchBranchId(activeBranchId);
-            return ResponseEntity.ok(requests);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
-    @GetMapping("/api/hr/forgot-clock")
-    public ResponseEntity<?> getBranchForgotClockRequests(@RequestParam(required = false) String branchId) {
-        try {
-            BranchAccessService.ErrorHolder error = new BranchAccessService.ErrorHolder();
-            String activeBranchId = branchAccessService.validateAndGetBranchId(branchId, error);
-            if (error.hasError()) return error.toResponse();
-
-            List<ForgotClockRequest> requests = forgotClockRequestRepository.findByEmployeeBranchBranchId(activeBranchId);
-            return ResponseEntity.ok(requests);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
     @PostMapping("/api/employee/leave-request")
     public ResponseEntity<?> submitLeaveRequest(@RequestBody LeaveRequestSubmit request) {
         try {
