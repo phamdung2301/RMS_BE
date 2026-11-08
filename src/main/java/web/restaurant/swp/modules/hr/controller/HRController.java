@@ -283,33 +283,6 @@ public class HRController {
         }
     }
 
-    @GetMapping("/api/employee/attendance/status")
-    public ResponseEntity<?> getAttendanceStatus() {
-        try {
-            User user = getLoggedInUser();
-            if (user == null) return ResponseEntity.status(401).body("Unauthorized");
-            Employee employee = employeeRepository.findByUserId(user.getId()).orElse(null);
-            if (employee == null) return ResponseEntity.badRequest().body("No employee profile found");
-
-            Optional<EmployeeAttendance> attendanceOpt = employeeAttendanceRepository.findByEmployeeIdAndDate(employee.getId(), LocalDate.now());
-            
-            java.util.Map<String, Object> map = new java.util.HashMap<>();
-            if (attendanceOpt.isPresent()) {
-                EmployeeAttendance att = attendanceOpt.get();
-                map.put("isClockedIn", att.getClockIn() != null && att.getClockOut() == null);
-                map.put("clockInTime", att.getClockIn() != null ? att.getClockIn().toString() : null);
-                map.put("clockOutTime", att.getClockOut() != null ? att.getClockOut().toString() : null);
-            } else {
-                map.put("isClockedIn", false);
-                map.put("clockInTime", null);
-                map.put("clockOutTime", null);
-            }
-            return ResponseEntity.ok(map);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
     @GetMapping("/api/employee/leave-requests")
     public ResponseEntity<?> getMyLeaveRequests() {
         try {

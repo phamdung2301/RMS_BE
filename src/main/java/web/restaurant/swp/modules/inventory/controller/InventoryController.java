@@ -287,50 +287,6 @@ public class InventoryController {
         private String unit;
     }
 
-    @GetMapping("/api/inventory/recipes")
-    public ResponseEntity<?> getRecipes() {
-        try {
-            User user = getLoggedInUser();
-            if (user == null) {
-                return ResponseEntity.status(401).body("Chưa đăng nhập");
-            }
-            
-            List<ProductStock> stocks = productStockRepository.findAll();
-            
-            // Group by ProductVariant
-            Map<ProductVariant, List<ProductStock>> grouped = stocks.stream()
-                    .collect(java.util.stream.Collectors.groupingBy(ProductStock::getVariant));
-            
-            List<Map<String, Object>> response = new java.util.ArrayList<>();
-            for (Map.Entry<ProductVariant, List<ProductStock>> entry : grouped.entrySet()) {
-                ProductVariant variant = entry.getKey();
-                List<ProductStock> portionList = entry.getValue();
-                
-                Map<String, Object> recipeMap = new java.util.HashMap<>();
-                recipeMap.put("id", variant.getId());
-                recipeMap.put("name", variant.getProduct() != null ? variant.getProduct().getName() + " (" + variant.getName() + ")" : variant.getName());
-                recipeMap.put("description", variant.getProduct() != null ? variant.getProduct().getDescription() : "");
-                
-                List<Map<String, Object>> ingredientList = new java.util.ArrayList<>();
-                for (ProductStock ps : portionList) {
-                    Map<String, Object> ingMap = new java.util.HashMap<>();
-                    ingMap.put("id", ps.getId());
-                    ingMap.put("rawMaterialId", ps.getItem().getId());
-                    ingMap.put("rawMaterialName", ps.getItem().getName());
-                    ingMap.put("quantity", ps.getQuantityNeeded());
-                    ingMap.put("unit", ps.getItem().getUnit());
-                    ingredientList.add(ingMap);
-                }
-                recipeMap.put("ingredients", ingredientList);
-                response.add(recipeMap);
-            }
-            
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
     @PostMapping("/api/inventory/recipes")
     @org.springframework.transaction.annotation.Transactional
     public ResponseEntity<?> saveRecipeFromFrontend(@RequestBody FrontendRecipeRequest request) {
@@ -432,22 +388,6 @@ public class InventoryController {
     public ResponseEntity<?> getRecipesByVariant(@PathVariable Long variantId) {
         try {
             return ResponseEntity.ok(productStockRepository.findByVariantId(variantId));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
-    @GetMapping("/api/inventory/categories")
-    public ResponseEntity<?> getCategories() {
-        try {
-            User user = getLoggedInUser();
-            if (user == null) {
-                return ResponseEntity.status(401).body("Chưa đăng nhập");
-            }
-            if (user.getTenant() == null) {
-                return ResponseEntity.ok(categoryRepository.findAll());
-            }
-            return ResponseEntity.ok(categoryRepository.findByTenantTenantId(user.getTenant().getTenantId()));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -574,23 +514,6 @@ public class InventoryController {
                 }
             }
             return ResponseEntity.ok("Successfully saved recipe portions");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
-    @GetMapping("/api/inventory/items")
-    public ResponseEntity<?> getInventoryItems() {
-        try {
-            User user = getLoggedInUser();
-            if (user == null) {
-                return ResponseEntity.status(401).body("Chưa đăng nhập");
-            }
-            if (user.getTenant() == null) {
-                return ResponseEntity.ok(inventoryItemRepository.findAll());
-            }
-            List<InventoryItem> items = inventoryItemRepository.findByTenantTenantId(user.getTenant().getTenantId());
-            return ResponseEntity.ok(items);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
