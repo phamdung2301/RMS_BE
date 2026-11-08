@@ -1,0 +1,82 @@
+# ============================================================
+# Render Blueprint - RMS Backend + PostgreSQL
+# Cach dung: Render Dashboard -> New + -> Blueprint -> chon repo
+# phamdung2301/RMS_BE -> Render se tu tao DB + service + env vars.
+# Cac bien danh dau sync: false se duoc Render hoi ban dien vao form.
+# ============================================================
+databases:
+  - name: rms-db
+    databaseName: rms_db
+    user: rms_db_user
+    region: singapore
+    plan: free
+
+services:
+  - type: web
+    name: rms-be
+    runtime: docker
+    plan: free
+    region: singapore
+    healthCheckPath: /actuator/health
+    envVars:
+      # --- Database: tu dong noi vao rms-db o tren ---
+      - key: DB_HOST
+        fromDatabase:
+          name: rms-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: rms-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: rms-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: rms-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: rms-db
+          property: password
+
+      # --- URL / CORS / Cookie ---
+      - key: APP_BASE_URL
+        value: https://rms-be.onrender.com
+      - key: FRONTEND_URL
+        value: https://rms-fe.onrender.com
+      - key: CORS_ALLOWED_ORIGINS
+        value: https://rms-fe.onrender.com
+      - key: SESSION_COOKIE_SAMESITE
+        value: None
+      - key: SESSION_COOKIE_SECURE
+        value: "true"
+
+      # --- Secrets: Render se hoi ban dien khi apply blueprint ---
+      - key: GOOGLE_OAUTH_CLIENT_ID
+        sync: false
+      - key: GOOGLE_OAUTH_CLIENT_SECRET
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+
+      # --- JVM: chong OOM tren RAM 512MB free tier ---
+      - key: JAVA_TOOL_OPTIONS
+        value: -XX:MaxRAMPercentage=75.0
+
+      # --- Tuy chon: bo comment khi can ---
+      # - key: SPRING_MAIL_USERNAME
+      #   sync: false
+      # - key: SPRING_MAIL_PASSWORD
+      #   sync: false
+      # - key: PAYOS_CLIENT_ID
+      #   sync: false
+      # - key: PAYOS_API_KEY
+      #   sync: false
+      # - key: PAYOS_CHECKSUM_KEY
+      #   sync: false
+      # - key: UPLOAD_DIR
+      #   value: /var/data/uploads
+
+      # KHONG set SEED_DATA tren production!
