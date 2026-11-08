@@ -3,6 +3,7 @@ package web.restaurant.swp.config;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -13,6 +14,7 @@ import web.restaurant.swp.modules.pos.model.TableEntity;
 
 @Component
 @Order(2)
+@ConditionalOnProperty(name = "app.data-seeder.enabled", havingValue = "true")
 @RequiredArgsConstructor
 @Slf4j
 public class DefaultPosLayoutResetter implements CommandLineRunner {

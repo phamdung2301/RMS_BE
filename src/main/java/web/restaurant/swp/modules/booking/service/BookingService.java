@@ -34,6 +34,9 @@ public class BookingService {
     @org.springframework.beans.factory.annotation.Value("${spring.mail.username}")
     private String senderEmail;
 
+    @org.springframework.beans.factory.annotation.Value("${app.email.fallback-dir:./emails}")
+    private String emailFallbackDir;
+
     private static final int CLEANING_BUFFER_MINUTES = 15;
 
     private boolean isOverlapping(LocalDateTime startA, int durationA, LocalDateTime startB, int durationB) {
@@ -575,7 +578,7 @@ public class BookingService {
             
             // Fallback for local sandbox/development where SMTP credentials are not yet set/authorized
             try {
-                String folderPath = "d:/RMS/emails";
+                String folderPath = emailFallbackDir;
                 java.io.File folder = new java.io.File(folderPath);
                 if (!folder.exists()) {
                     folder.mkdirs();

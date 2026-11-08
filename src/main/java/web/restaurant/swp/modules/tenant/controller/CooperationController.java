@@ -37,6 +37,9 @@ public class CooperationController {
     private final TableSessionRepository tableSessionRepository;
     private final OrderService orderService;
 
+    @org.springframework.beans.factory.annotation.Value("${app.frontend-url}")
+    private String frontendUrl;
+
     private User getLoggedInUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getName())) {
@@ -239,8 +242,8 @@ public class CooperationController {
 
         cooperationRequestRepository.save(request);
 
-        String returnUrl = "http://localhost:3000/profile?coopStatus=success";
-        String cancelUrl = "http://localhost:3000/profile?coopStatus=cancel";
+        String returnUrl = frontendUrl + "/profile?coopStatus=success";
+        String cancelUrl = frontendUrl + "/profile?coopStatus=cancel";
         
         try {
             Map<String, Object> payosData = payOSHelper.createPaymentLink(

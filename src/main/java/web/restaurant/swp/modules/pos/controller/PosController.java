@@ -79,6 +79,12 @@ public class PosController {
     private final FloorPlanObjectRepository floorPlanObjectRepository;
     private final PayOSHelper payOSHelper;
 
+    @org.springframework.beans.factory.annotation.Value("${app.frontend-url}")
+    private String frontendUrl;
+
+    @org.springframework.beans.factory.annotation.Value("${app.base-url}")
+    private String baseUrl;
+
     private User getLoggedInUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated()) return null;
@@ -434,8 +440,8 @@ public class PosController {
                 tableSessionRepository.save(sess);
             }
 
-            String returnUrl = "http://localhost:3000/pos?status=success&session=" + sessionId;
-            String cancelUrl = "http://localhost:3000/pos?status=cancel&session=" + sessionId;
+            String returnUrl = frontendUrl + "/pos?status=success&session=" + sessionId;
+            String cancelUrl = frontendUrl + "/pos?status=cancel&session=" + sessionId;
 
             String checkoutUrl = "";
             try {
@@ -452,7 +458,7 @@ public class PosController {
                 }
             } catch (Exception e) {
                 log.warn("[PAYOS POS] Failed to create real PayOS payment link: {}. Falling back to mock payment portal.", e.getMessage());
-                checkoutUrl = "http://localhost:8080/api/public/payos/mock-checkout"
+                checkoutUrl = baseUrl + "/api/public/payos/mock-checkout"
                         + "?orderCode=" + orderCode
                         + "&amount=" + finalAmount
                         + "&description=" + "RMSPOS" + sessionId

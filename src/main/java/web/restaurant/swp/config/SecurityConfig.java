@@ -178,7 +178,8 @@ public class SecurityConfig {
                                 + "/oauth2/callback?error=user_not_found");
             })
                 .failureHandler((request, response, exception) -> {
-                    response.sendRedirect("http://localhost:3000/oauth2/callback?error=" + java.net.URLEncoder.encode(exception.getMessage(), "UTF-8"));
+                    String frontendUrl = System.getenv("FRONTEND_URL") != null ? System.getenv("FRONTEND_URL") : "http://localhost:3000";
+                    response.sendRedirect(frontendUrl + "/oauth2/callback?error=" + java.net.URLEncoder.encode(exception.getMessage(), "UTF-8"));
                 })
             )
             .httpBasic(httpBasic -> httpBasic

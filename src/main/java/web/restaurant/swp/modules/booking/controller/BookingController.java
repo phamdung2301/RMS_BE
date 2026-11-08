@@ -41,6 +41,9 @@ public class BookingController {
     private final web.restaurant.swp.util.PayOSHelper payOSHelper;
     private final TableSessionRepository tableSessionRepository;
 
+    @org.springframework.beans.factory.annotation.Value("${app.frontend-url}")
+    private String frontendUrl;
+
     /**
      * Get all active branches for reservation.
      */
@@ -203,11 +206,11 @@ public class BookingController {
             // If orderCode is present, attempt to create PayOS payment link
             if (created.getOrderCode() != null) {
                 try {
-                    String returnUrl = "http://localhost:3000/booking?status=success";
-                    String cancelUrl = "http://localhost:3000/booking?status=cancel";
+                    String returnUrl = frontendUrl + "/booking?status=success";
+                    String cancelUrl = frontendUrl + "/booking?status=cancel";
                     if (created.getEventId() != null) {
-                        returnUrl = "http://localhost:3000/events?status=success";
-                        cancelUrl = "http://localhost:3000/events?status=cancel";
+                        returnUrl = frontendUrl + "/events?status=success";
+                        cancelUrl = frontendUrl + "/events?status=cancel";
                     }
                     
                     Map<String, Object> payosData = payOSHelper.createPaymentLink(
@@ -474,8 +477,8 @@ public class BookingController {
             if (updated.getOrderCode() != null && !Boolean.TRUE.equals(updated.getDepositPaid()) && 
                 "QR_PAY".equalsIgnoreCase(updated.getPaymentMethod())) {
                 try {
-                    String returnUrl = "http://localhost:3000/booking-history?status=success";
-                    String cancelUrl = "http://localhost:3000/booking-history?status=cancel";
+                    String returnUrl = frontendUrl + "/booking-history?status=success";
+                    String cancelUrl = frontendUrl + "/booking-history?status=cancel";
                     
                     double amount = (updated.getDepositAmount() != null && updated.getDepositAmount() > 0) ? updated.getDepositAmount() : 100000.0;
                     if (updated.getPendingUpdateJson() != null) {
@@ -499,7 +502,7 @@ public class BookingController {
                     }
                 } catch (Exception e) {
                     log.warn("[PAYOS BOOKING UPDATE] Could not create PayOS payment link: {}. Falling back to standard QR code.", e.getMessage());
-                    updated.setCheckoutUrl("http://localhost:3000/booking-history?fallback-pay=true");
+                    updated.setCheckoutUrl(frontendUrl + "/booking-history?fallback-pay=true");
                 }
             }
             

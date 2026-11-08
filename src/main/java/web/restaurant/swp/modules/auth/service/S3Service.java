@@ -38,6 +38,9 @@ public class S3Service {
     @Value("${app.upload.dir:./uploads}")
     private String localUploadDir;
 
+    @Value("${app.base-url:http://localhost:8080}")
+    private String baseUrl;
+
     private S3Client s3Client;
     private boolean isMockMode = true;
 
@@ -67,7 +70,7 @@ public class S3Service {
     public String uploadAvatar(MultipartFile file) throws IOException {
         String url = uploadFile(file, "avatars");
         if (url.startsWith("/")) {
-            return "http://localhost:8080" + url;
+            return baseUrl + url;
         }
         return url;
     }
